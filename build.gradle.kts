@@ -25,11 +25,12 @@ tasks.register<Jar>("fatJar") {
     }
     from(sourceSets.main.get().output)
 
-    // Додаємо всі залежності у JAR
     dependsOn(configurations.runtimeClasspath)
     from({
         configurations.runtimeClasspath.get().filter { it.name.endsWith(".jar") }.map { zipTree(it) }
-    })
+    }) {
+        exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
+    }
 }
 
 
