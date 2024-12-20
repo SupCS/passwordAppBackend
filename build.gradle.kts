@@ -55,3 +55,7 @@ dependencies {
     implementation("at.favre.lib:bcrypt:0.9.0")
     implementation("com.nulab-inc:zxcvbn:1.9.0")
 }
+
+tasks.register("stage") {
+    dependsOn("fatJar")
+}
