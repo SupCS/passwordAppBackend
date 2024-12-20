@@ -32,9 +32,20 @@ fun Application.configureRouting() {
         // Реєстрація
         post("/register") {
             val request = call.receive<UserRegisterRequest>()
+
+            if (request.username.length < 4) {
+                call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Username must be at least 4 characters long"))
+                return@post
+            }
+
+            if (request.password.length < 6) {
+                call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Password must be at least 6 characters long"))
+                return@post
+            }
+
             val existingUser = Database.usersCollection.find(User::username eq request.username).firstOrNull()
             if (existingUser != null) {
-                call.respond(HttpStatusCode.Conflict, "User already exists")
+                    call.respond(HttpStatusCode.Conflict, mapOf("error" to "User already exists"))
                 return@post
             }
 
@@ -45,7 +56,7 @@ fun Application.configureRouting() {
                 passwordHash = hashedPassword
             )
             Database.usersCollection.insertOne(newUser)
-            call.respond(HttpStatusCode.Created, "User registered successfully")
+            call.respond(HttpStatusCode.Created, mapOf("message" to "User registered successfully"))
         }
 
         // Логін
@@ -53,19 +64,20 @@ fun Application.configureRouting() {
             val request = call.receive<UserLoginRequest>()
             val user = Database.usersCollection.find(User::username eq request.username).firstOrNull()
             if (user == null) {
-                call.respond(HttpStatusCode.Unauthorized, "Invalid username or password")
+                call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Invalid username or password"))
                 return@post
             }
 
             val passwordVerified = BCrypt.verifyer().verify(request.password.toCharArray(), user.passwordHash)
             if (!passwordVerified.verified) {
-                call.respond(HttpStatusCode.Unauthorized, "Invalid username or password")
+                call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Invalid username or password"))
                 return@post
             }
 
             val token = JwtConfig.generateToken(user.username)
-            call.respond(HttpStatusCode.OK, mapOf("token" to token))
+            call.respond(HttpStatusCode.OK, mapOf("token" to token, "message" to "Login successful"))
         }
+
 
         // Генерація пароля
         post("/generate-password") {
@@ -114,9 +126,9 @@ fun Application.configureRouting() {
                 )
 
                 if (updateResult.modifiedCount > 0) {
-                    call.respond(HttpStatusCode.OK, "Password saved successfully")
+                    call.respond(HttpStatusCode.OK, mapOf("message" to "Password saved successfully"))
                 } else {
-                    call.respond(HttpStatusCode.InternalServerError, "Failed to save password")
+                    call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Failed to save password"))
                 }
             }
 
@@ -131,6 +143,7 @@ fun Application.configureRouting() {
 
                 val decryptedPasswords = user.savedPasswords.map { password ->
                     mapOf(
+                        "id" to password.id.toHexString(),
                         "title" to password.title,
                         "username" to password.username,
                         "password" to encryptionService.decrypt(password.password)
@@ -160,9 +173,9 @@ fun Application.configureRouting() {
                 )
 
                 if (updateResult.modifiedCount > 0) {
-                    call.respond(HttpStatusCode.OK, "Password deleted successfully")
+                    call.respond(HttpStatusCode.OK, mapOf("message" to "Password deleted successfully"))
                 } else {
-                    call.respond(HttpStatusCode.NotFound, "Password not found")
+                    call.respond(HttpStatusCode.NotFound, mapOf("error" to "Password not found"))
                 }
             }
         }
