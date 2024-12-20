@@ -16,6 +16,23 @@ application {
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
 }
 
+tasks.register<Jar>("fatJar") {
+    archiveBaseName.set("password-generator-backend")
+    archiveVersion.set(version.toString())
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes["Main-Class"] = "io.ktor.server.netty.EngineMain"
+    }
+    from(sourceSets.main.get().output)
+
+    // Додаємо всі залежності у JAR
+    dependsOn(configurations.runtimeClasspath)
+    from({
+        configurations.runtimeClasspath.get().filter { it.name.endsWith(".jar") }.map { zipTree(it) }
+    })
+}
+
+
 repositories {
     mavenCentral()
 }
