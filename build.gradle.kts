@@ -21,7 +21,7 @@ tasks.register<Jar>("fatJar") {
     archiveVersion.set(version.toString())
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
-        attributes["Main-Class"] = "io.ktor.server.netty.EngineMain"
+        attributes["Main-Class"] = "ua.asparian.ApplicationKt"
     }
     from(sourceSets.main.get().output)
 
