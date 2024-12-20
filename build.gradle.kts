@@ -52,7 +52,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     implementation("org.litote.kmongo:kmongo:4.9.0")
     implementation("org.litote.kmongo:kmongo-id:4.9.0")
-    implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
+//    implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
     implementation("at.favre.lib:bcrypt:0.9.0")
     implementation("com.nulab-inc:zxcvbn:1.9.0")
 }

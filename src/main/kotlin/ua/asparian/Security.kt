@@ -2,14 +2,12 @@ package ua.asparian
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import io.github.cdimascio.dotenv.Dotenv
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 
 object JwtConfig {
-    private val dotenv = Dotenv.load()
-    private val secret = dotenv["JWT_SECRET"] ?: throw IllegalStateException("JWT_SECRET not found in .env")
+    private val secret = System.getenv("JWT_SECRET") ?: throw IllegalStateException("JWT_SECRET not found in .env")
     private const val issuer = "ua.asparian"
     private const val audience = "ua.asparian.users"
     const val realm = "Access to Password Manager"
